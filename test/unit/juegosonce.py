@@ -43,5 +43,5 @@ class TestResultFetcher(unittest.TestCase):
 
 
 def load_fixture(case: str) -> str:
-    with open(f"test/testdata/juegosonce_remote_{case}.xml") as f:
+    with open(f"test/unit/testdata/juegosonce_remote_{case}.xml") as f:
         return f.read()

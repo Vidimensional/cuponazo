@@ -1,7 +1,7 @@
 .PHONY: test unittest
 test: unittest
 unittest:
-	python -m unittest discover -s test
+	python -m unittest discover -s ./test/unit/ -p '*.py'
 
 .PHONY: dev-dependencies dependencies
 dependencies:
