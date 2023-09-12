@@ -7,6 +7,7 @@ from botocore.exceptions import ClientError
 
 from cuponazo.lottery import CuponazoTicket
 from cuponazo.dynamodb import TicketRepository
+from cuponazo.dynamodb import TicketRepositoryError
 from cuponazo.dynamodb import DynDBTable
 
 table_name = "some_table"
@@ -58,9 +59,8 @@ class Test_TicketRepository_GetTicketById(TestCase):
         mocked_dyndb = build_mocked_dyndb(get_item_raises=client_error)
         repo = TicketRepository(mocked_dyndb)
 
-        with self.assertLogs(level=logging.ERROR) as cm:
-            with self.assertRaises(ClientError):
-                repo.get_tickets_by_id(ticket_id)
+        with self.assertRaises(TicketRepositoryError):
+            repo.get_tickets_by_id(ticket_id)
         mocked_dyndb.get_item.assert_called_once_with(Key={"Id": ticket_id})
         mocked_dyndb.put_item.assert_not_called()
 
@@ -92,12 +92,11 @@ class Test_TicketRepository_AddTicketToId(TestCase):
         mocked_dyndb = build_mocked_dyndb(get_item_raises=client_error)
         repo = TicketRepository(mocked_dyndb)
 
-        with self.assertLogs(level=logging.ERROR) as cm:
-            with self.assertRaises(ClientError):
-                repo.add_ticket_to_id(
-                    ticket_id,
-                    CuponazoTicket(self.new_ticket_number, self.new_ticket_serie),
-                )
+        with self.assertRaises(TicketRepositoryError):
+            repo.add_ticket_to_id(
+                ticket_id,
+                CuponazoTicket(self.new_ticket_number, self.new_ticket_serie),
+            )
         mocked_dyndb.get_item.assert_called_once_with(Key={"Id": ticket_id})
         mocked_dyndb.put_item.assert_not_called()
 
@@ -109,12 +108,11 @@ class Test_TicketRepository_AddTicketToId(TestCase):
 
         repo = TicketRepository(mocked_dyndb)
 
-        with self.assertLogs(level=logging.ERROR) as cm:
-            with self.assertRaises(ClientError):
-                repo.add_ticket_to_id(
-                    ticket_id,
-                    CuponazoTicket(self.new_ticket_number, self.new_ticket_serie),
-                )
+        with self.assertRaises(TicketRepositoryError):
+            repo.add_ticket_to_id(
+                ticket_id,
+                CuponazoTicket(self.new_ticket_number, self.new_ticket_serie),
+            )
         mocked_dyndb.get_item.assert_called_once_with(Key={"Id": ticket_id})
         mocked_dyndb.put_item.assert_called_once_with(
             Item={

@@ -1,8 +1,11 @@
 import json
-import logging
 from botocore.exceptions import ClientError
 
 from cuponazo.lottery import CuponazoTicket
+
+
+class TicketRepositoryError(Exception):
+    pass
 
 
 class DynDBTable:
@@ -28,14 +31,9 @@ class TicketRepository:
         try:
             response = self.table.get_item(Key={"Id": ticket_id})
         except ClientError as err:
-            logging.error(
-                "Problem getting tickets for '%s' from '%s': %s: %s",
-                ticket_id,
-                self.table.name,
-                err.response["Error"]["Code"],
-                err.response["Error"]["Message"],
+            raise TicketRepositoryError(
+                f"Problem getting tickets for '{ticket_id}' from '{self.table.name}': {err.response['Error']['Code']}: {err.response['Error']['Message']}"
             )
-            raise
 
         try:
             db_items = response["Item"]
@@ -56,11 +54,6 @@ class TicketRepository:
         try:
             self.table.put_item(Item={"Id": ticket_id, "Tickets": serialized_tickets})
         except ClientError as err:
-            logging.error(
-                "Problem saving tickets for '%s' to '%s': %s: %s",
-                ticket_id,
-                self.table.name,
-                err.response["Error"]["Code"],
-                err.response["Error"]["Message"],
+            raise TicketRepositoryError(
+                f"Problem saving tickets for '{ticket_id}' to '{self.table.name}': {err.response['Error']['Code']}: {err.response['Error']['Message']}"
             )
-            raise
