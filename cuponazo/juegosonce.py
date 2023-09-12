@@ -53,7 +53,14 @@ class ResultsFetcher:
         ]
 
     def __get_items_from_response(self, r: str) -> list[dict[str, str]]:
-        items = xmltodict.parse(r)["items"]["item"]
+        try:
+            items = xmltodict.parse(r)["items"]["item"]
+
+        except Exception as err:
+            # This raises too many kinds of Exceptions... Let's catch all.
+            raise ResultsFetchError(
+                f"Got an issue parsing juegosonce XML response: {str(err)}"
+            )
 
         if type(items) is not type([]):
             return [items]

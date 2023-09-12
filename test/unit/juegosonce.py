@@ -57,6 +57,17 @@ class Test_ResultFetcher_FetchCuponazo(unittest.TestCase):
             fetcher.fetch_cuponazo()
         mocked_http.get.assert_called_once_with(juegosonce_url)
 
+    def test_response_payload_is_invalid_xml(self):
+        mocked_http = build_mocked_http(
+            resp_status_code=HTTPStatus.OK,
+            resp_text="asad.</",
+        )
+        fetcher = ResultsFetcher(juegosonce_url, mocked_http)
+
+        with self.assertRaises(ResultsFetchError):
+            fetcher.fetch_cuponazo()
+        mocked_http.get.assert_called_once_with(juegosonce_url)
+
 
 def load_fixture(case: str) -> str:
     with open(f"test/unit/testdata/juegosonce_remote_{case}.xml") as f:
