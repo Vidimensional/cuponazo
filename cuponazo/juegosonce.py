@@ -1,4 +1,6 @@
+import logging
 import requests
+from requests.exceptions import RequestException
 import xmltodict
 
 lottery_names = {"cuponazo": "Cuponazo", "cupon_diario": "Cup&oacute;n Diario"}
@@ -26,7 +28,11 @@ class ResultsFetcher:
         ]
 
     def __fetch(self, lottery_type: str) -> list[dict[str, str]]:
-        resp = self.http.get(self.url)
+        try:
+            resp = self.http.get(self.url)
+        except RequestException as err:
+            logging.error("Problem fetching juegosonce results: %s", str(err))
+            raise
 
         return [
             item
