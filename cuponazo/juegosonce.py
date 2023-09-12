@@ -10,6 +10,9 @@ class CuponazoResult:
         self.number = number
         self.serie = serie
 
+    def __eq__(self, __value: object) -> bool:
+        return self.number == __value.number and self.serie == __value.serie
+
 
 class ResultsFetcher:
     def __init__(self, url: str, http: requests.Session) -> None:

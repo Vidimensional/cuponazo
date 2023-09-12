@@ -7,8 +7,8 @@ from cuponazo.juegosonce import ResultsFetcher
 from cuponazo.juegosonce import url as juegosonce_url
 
 
-class TestResultFetcher(unittest.TestCase):
-    def test_fetch_cuponazo_juegosonce_returns_correct_response(self):
+class Test_ResultFetcher_FetchCuponazo(unittest.TestCase):
+    def test_remote_returns_correct_response(self):
         raffle_type = "cuponazo"
         test_case = "correct_response"
 
@@ -21,11 +21,9 @@ class TestResultFetcher(unittest.TestCase):
         fetcher = ResultsFetcher(juegosonce_url, mocked_http)
         result = fetcher.fetch_cuponazo()
 
-        self.assertTrue(len(result), 1)
-        self.assertEqual(result[0].number, "75727")
-        self.assertEqual(result[0].serie, "024")
+        self.assertEqual(result, [CuponazoResult("75727", "024")])
 
-    def test_fetch_cuponazo_juegosonce_returns_response_without_cuponazo(self):
+    def test_remote_returns_response_without_cuponazo(self):
         raffle_type = "cuponazo"
         test_case = "response_without_cuponazo"
 
@@ -38,7 +36,6 @@ class TestResultFetcher(unittest.TestCase):
         fetcher = ResultsFetcher(juegosonce_url, mocked_http)
         result = fetcher.fetch_cuponazo()
 
-        # FIXME should we expect an exception here?
         self.assertEqual(result, [])
 
 
