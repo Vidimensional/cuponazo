@@ -1,7 +1,11 @@
 import logging
+
+from http import HTTPStatus
+
 import requests
-from requests.exceptions import RequestException
 import xmltodict
+
+from requests.exceptions import RequestException
 
 lottery_names = {"cuponazo": "Cuponazo", "cupon_diario": "Cup&oacute;n Diario"}
 url = "https://www.juegosonce.es/rss/sorteos2.xml"
@@ -14,6 +18,10 @@ class CuponazoResult:
 
     def __eq__(self, __value: object) -> bool:
         return self.number == __value.number and self.serie == __value.serie
+
+
+class ResultsFetchError(Exception):
+    pass
 
 
 class ResultsFetcher:
@@ -31,8 +39,12 @@ class ResultsFetcher:
         try:
             resp = self.http.get(self.url)
         except RequestException as err:
-            logging.error("Problem fetching juegosonce results: %s", str(err))
-            raise
+            raise ResultsFetchError(f"Unable to request juegosonce results: {str(err)}")
+
+        if resp.status_code is not HTTPStatus.OK.value:
+            raise ResultsFetchError(
+                f"Invalid response from juegosonce:{resp.reason}({resp.status_code})"
+            )
 
         return [
             item
