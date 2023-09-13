@@ -8,7 +8,7 @@ import requests
 
 from requests.exceptions import RequestException
 
-from cuponazo.juegosonce import CuponazoResult
+from cuponazo.juegosonce import CuponazoTicket
 from cuponazo.juegosonce import ResultsFetcher
 from cuponazo.juegosonce import ResultsFetchError
 from cuponazo.juegosonce import url as juegosonce_url
@@ -24,7 +24,7 @@ class Test_ResultFetcher_FetchCuponazo(unittest.TestCase):
         fetcher = ResultsFetcher(juegosonce_url, mocked_http)
         result = fetcher.fetch_cuponazo()
 
-        self.assertEqual(result, [CuponazoResult("75727", "024")])
+        self.assertEqual(result, [CuponazoTicket("75727", "024")])
         mocked_http.get.assert_called_once_with(juegosonce_url)
 
     def test_remote_returns_response_without_cuponazo(self):

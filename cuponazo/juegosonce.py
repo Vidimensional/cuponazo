@@ -7,17 +7,10 @@ import xmltodict
 
 from requests.exceptions import RequestException
 
+from cuponazo.lottery import CuponazoTicket
+
 lottery_names = {"cuponazo": "Cuponazo", "cupon_diario": "Cup&oacute;n Diario"}
 url = "https://www.juegosonce.es/rss/sorteos2.xml"
-
-
-class CuponazoResult:
-    def __init__(self, number: str, serie: str):
-        self.number = number
-        self.serie = serie
-
-    def __eq__(self, __value: object) -> bool:
-        return self.number == __value.number and self.serie == __value.serie
 
 
 class ResultsFetchError(Exception):
@@ -29,9 +22,9 @@ class ResultsFetcher:
         self.url = url
         self.http = http
 
-    def fetch_cuponazo(self) -> list[CuponazoResult]:
+    def fetch_cuponazo(self) -> list[CuponazoTicket]:
         return [
-            CuponazoResult(item["numero"], item["serie"])
+            CuponazoTicket(item["numero"], item["serie"])
             for item in self.__fetch("cuponazo")
         ]
 
