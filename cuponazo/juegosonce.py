@@ -14,15 +14,35 @@ url = "https://www.juegosonce.es/rss/sorteos2.xml"
 
 
 class ResultsFetchError(Exception):
+    """Raised whenever `ResultsFetcher` encountered an issue to fecth juegosonce results."""
+
     pass
 
 
 class ResultsFetcher:
-    def __init__(self, url: str, http: requests.Session) -> None:
+    """Class responsible to fetch results from Juegosonce.
+
+    Parameters
+    ----------
+    `url` (`str`)
+        URL for the Juegosonce endpoint with latests results.
+
+    `http` (`requests.sessions.Session`)
+        Requests sessions used to make the actual request to `url`.
+    """
+
+    def __init__(self, url: str, http: requests.sessions.Session) -> None:
         self.url = url
         self.http = http
 
     def fetch_cuponazo(self) -> list[CuponazoTicket]:
+        """Fetches restulsts from `self.url` and returns a list of `CuponazoTicket` with the winning combination.
+
+        Returns
+        -------
+        `list[CuponazoTicket]`
+            List with the result of the latest Cuponazo lottery.
+        """
         return [
             CuponazoTicket(item["numero"], item["serie"])
             for item in self.__fetch("cuponazo")

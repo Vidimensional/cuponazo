@@ -5,10 +5,14 @@ from cuponazo.lottery import CuponazoTicket
 
 
 class TicketRepositoryError(Exception):
+    """Raised whenever `TicketRepository` encountered an issue to read/write tickets on the DB."""
+
     pass
 
 
 class DynDBTable:
+    """Wrapper of [boto3 Table Resource](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/table/index.html)"""
+
     def __init__(self, dyndb_table) -> None:
         self.table = dyndb_table
 
@@ -24,6 +28,13 @@ class DynDBTable:
 
 
 class TicketRepository:
+    """Repository for the stored Cuponazo tickets played.
+
+    Parameters
+    ----------
+    `table` (`DynDBTable`)
+    """
+
     def __init__(self, table: DynDBTable) -> None:
         self.table = table
 

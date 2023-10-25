@@ -1,0 +1,24 @@
+## To return to lottery.py
+
+class TicketSerializer:
+    number_key = "number"
+    serie_key = "key"
+
+    @staticmethod
+    def serialize(t: CuponazoTicket) -> dict[str, str]:
+        return {
+            TicketSerializer.number_key: t.number,
+            TicketSerializer.serie_key: t.serie,
+        }
+
+    @staticmethod
+    def deserialize(t: dict[str, str]) -> CuponazoTicket:
+        try:
+            ticket = CuponazoTicket(
+                number=t[TicketSerializer.number_key],
+                serie=t[TicketSerializer.serie_key],
+            )
+        except KeyError as err:
+            raise
+        else:
+            return ticket
