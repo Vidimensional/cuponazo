@@ -48,18 +48,27 @@ class TicketChecker:
             else:
                 return CuponazoTicket.number_length
 
-        i_forward = self.__get_prize_from_number(self.result.number, ticket.number)
-        i_reverse = self.__get_prize_from_number(
-            self.result.number[::-1],
-            ticket.number[::-1],
+        coincidences_forward = self.__get_coincidences_from_number(
+            self.result.number,
+            ticket.number,
+        )
+        coincidences_reverse = self.__get_coincidences_from_number(
+            self.__reverse_str(self.result.number),
+            self.__reverse_str(ticket.number),
         )
 
-        return max(i_forward, i_reverse)
+        return max(coincidences_forward, coincidences_reverse)
 
-    def __get_prize_from_number(self, result_number: str, ticket_number: str) -> int:
-        for i in range(CuponazoTicket.number_length):
-            result_nimber = result_number[i]
-            nimber = ticket_number[i]
-            if result_nimber != nimber:
+    def __get_coincidences_from_number(self, result: str, ticket: str) -> int:
+        for i, r, t in zip(
+            range(len(result)),
+            list(result),
+            list(ticket),
+        ):
+            if r != t:
                 break
+
         return i
+
+    def __reverse_str(self, s: str) -> str:
+        return s[::-1]
