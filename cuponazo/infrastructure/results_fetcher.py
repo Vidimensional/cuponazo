@@ -1,17 +1,13 @@
-import logging
+import http
+import urllib.error
+import urllib.request
 
-from http import HTTPStatus
-
-import requests
 import xmltodict
-
-from requests.exceptions import RequestException
 
 from cuponazo.domain import results_fetcher
 from cuponazo.domain import ticket
 
 lottery_names = {"cuponazo": "Cuponazo", "cupon_diario": "Cup&oacute;n Diario"}
-url = "https://www.juegosonce.es/rss/sorteos2.xml"
 
 
 class ResultsFetcher(results_fetcher.Interface):
@@ -21,14 +17,10 @@ class ResultsFetcher(results_fetcher.Interface):
     ----------
     `url` (`str`)
         URL for the Juegosonce endpoint with latests results.
-
-    `http` (`requests.sessions.Session`)
-        Requests sessions used to make the actual request to `url`.
     """
 
-    def __init__(self, url: str, http: requests.sessions.Session) -> None:
+    def __init__(self, url: str) -> None:
         self.url = url
-        self.http = http
 
     def fetch_cuponazo(self) -> list[ticket.Cuponazo]:
         """Fetches restulsts from `self.url` and returns a list of `ticket.Cuponazo` with the winning combination.
@@ -45,29 +37,29 @@ class ResultsFetcher(results_fetcher.Interface):
 
     def __fetch(self, lottery_type: str) -> list[dict[str, str]]:
         try:
-            resp = self.http.get(self.url)
-        except RequestException as err:
+            resp = urllib.request.urlopen(self.url)
+        except urllib.error.URLError as err:
             raise results_fetcher.Error(
                 f"Unable to request juegosonce results: {str(err)}"
             )
 
-        if resp.status_code is not HTTPStatus.OK.value:
+        if resp.code is not http.HTTPStatus.OK.value:
             raise results_fetcher.Error(
                 f"Invalid response from juegosonce:{resp.reason}({resp.status_code})"
             )
 
         return [
             item
-            for item in self.__get_items_from_response(resp.text)
+            for item in self.__get_items_from_response(resp.read())
             if item["tipo"] == lottery_names[lottery_type]
         ]
 
-    def __get_items_from_response(self, r: str) -> list[dict[str, str]]:
+    def __get_items_from_response(self, r: bytes) -> list[dict[str, str]]:
         try:
             items = xmltodict.parse(r)["items"]["item"]
 
+        # This raises too many kinds of Exceptions... Let's catch all.
         except Exception as err:
-            # This raises too many kinds of Exceptions... Let's catch all.
             raise results_fetcher.Error(
                 f"Got an issue parsing juegosonce XML response: {str(err)}"
             )
