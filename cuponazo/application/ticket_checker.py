@@ -7,7 +7,7 @@ class TicketChecker:
 
     Parameters
     ----------
-    `result` (`CuponazoTicket`)
+    `result` (`ticket.Cuponazo`)
         The result of the lottery that we want to check tickets against it.
     """
 
@@ -15,12 +15,12 @@ class TicketChecker:
         self.result = result
 
     def check_ticket(self, t: ticket.Cuponazo) -> int:
-        """Returns the prize level of the ticket, that it would be the number of coincident numbers between `ticket`
+        """Returns the prize level of the ticket, that it would be the number of coincident numbers between `t`
         and `self.result`. It'll return a 6 (5+1) if we have 5 coincidences and also the serie coincides.
 
         Parameters
         ----------
-        `ticket` (`CuponazoTicket`)
+        `ticket` (`ticket.Cuponazo`)
             A ticket we want to check the prize level of it.
 
         Returns

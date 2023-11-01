@@ -2,7 +2,7 @@ import re
 
 
 class InvalidFormatError(Exception):
-    """Raised when tried to create new `CuponazoTicket` with incorrect format parameters."""
+    """Raised when tried to create new `ticket.Cuponazo` with incorrect format parameters."""
 
     pass
 
@@ -20,7 +20,7 @@ class Cuponazo:
 
     Raises
     ------
-    `InvalidTicketFormatError`
+    `InvalidFormatError`
         If the parameters doesn't fit the specifications.
     """
 
