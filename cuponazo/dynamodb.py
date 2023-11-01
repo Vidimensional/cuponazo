@@ -10,7 +10,7 @@ class TicketRepositoryError(Exception):
     pass
 
 
-class DynDBTable:
+class DynDBTableWrapper:
     """Wrapper of [boto3 Table Resource](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/table/index.html)"""
 
     def __init__(self, dyndb_table) -> None:
@@ -35,7 +35,7 @@ class TicketRepository:
     `table` (`DynDBTable`)
     """
 
-    def __init__(self, table: DynDBTable) -> None:
+    def __init__(self, table: DynDBTableWrapper) -> None:
         self.table = table
 
     def get_tickets_by_id(self, ticket_id: str) -> list[CuponazoTicket]:

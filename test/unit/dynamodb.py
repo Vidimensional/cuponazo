@@ -8,7 +8,7 @@ from botocore.exceptions import ClientError
 from cuponazo.lottery import CuponazoTicket
 from cuponazo.dynamodb import TicketRepository
 from cuponazo.dynamodb import TicketRepositoryError
-from cuponazo.dynamodb import DynDBTable
+from cuponazo.dynamodb import DynDBTableWrapper
 
 table_name = "some_table"
 ticket_id = "2023-02-11"
@@ -137,7 +137,7 @@ def build_mocked_dyndb(
     get_item_returns: dict = None,
     get_item_raises: Exception = None,
     put_item_raises: Exception = None,
-) -> Mock | DynDBTable:
+) -> Mock | DynDBTableWrapper:
     mocked_dyndb = Mock()
     mocked_dyndb.name = table_name
 
