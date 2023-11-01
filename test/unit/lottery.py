@@ -1,6 +1,7 @@
 from unittest import TestCase
 
-from cuponazo.lottery import CuponazoTicket, InvalidTicketFormatError, TicketChecker
+from cuponazo.application import ticket_checker
+from cuponazo.domain import ticket
 
 
 class Test_CuponazoTicket(TestCase):
@@ -8,10 +9,10 @@ class Test_CuponazoTicket(TestCase):
         number = "12345"
         serie = "123"
 
-        ticket = CuponazoTicket(number, serie)
+        t = ticket.Cuponazo(number, serie)
 
-        self.assertEqual(ticket.number, number)
-        self.assertEqual(ticket.serie, serie)
+        self.assertEqual(t.number, number)
+        self.assertEqual(t.serie, serie)
 
     def test_init_invalid_ticket_values(self):
         test_cases = [
@@ -28,19 +29,19 @@ class Test_CuponazoTicket(TestCase):
 
         for number, serie in test_cases:
             with self.assertRaises(
-                InvalidTicketFormatError,
+                ticket.InvalidFormatError,
                 msg=f"Case -> number '{number}', serie '{serie}'",
             ) as cm:
-                CuponazoTicket(number, serie)
+                ticket.Cuponazo(number, serie)
 
     def test_eq_equal_tickets(self):
         self.assertTrue(
-            CuponazoTicket("12345", "123") == CuponazoTicket("12345", "123")
+            ticket.Cuponazo("12345", "123") == ticket.Cuponazo("12345", "123")
         )
 
     def test_eq_different_tickets(self):
         self.assertTrue(
-            CuponazoTicket("12345", "123") != CuponazoTicket("54321", "321")
+            ticket.Cuponazo("12345", "123") != ticket.Cuponazo("54321", "321")
         )
 
 
@@ -49,66 +50,66 @@ class Test_TicketChecker(TestCase):
         test_cases = [
             {
                 "case_name": "5 numbers + serie",
-                "ticket": CuponazoTicket("12345", "321"),
+                "ticket": ticket.Cuponazo("12345", "321"),
                 "expected": 6,
             },
             {
                 "case_name": "5 numbers",
-                "ticket": CuponazoTicket("12345", "000"),
+                "ticket": ticket.Cuponazo("12345", "000"),
                 "expected": 5,
             },
             {
                 "case_name": "4 numbers",
-                "ticket": CuponazoTicket("02345", "000"),
+                "ticket": ticket.Cuponazo("02345", "000"),
                 "expected": 4,
             },
             {
                 "case_name": "3 numbers",
-                "ticket": CuponazoTicket("00345", "000"),
+                "ticket": ticket.Cuponazo("00345", "000"),
                 "expected": 3,
             },
             {
                 "case_name": "2 numbers",
-                "ticket": CuponazoTicket("00045", "000"),
+                "ticket": ticket.Cuponazo("00045", "000"),
                 "expected": 2,
             },
             {
                 "case_name": "1 numbers",
-                "ticket": CuponazoTicket("00005", "000"),
+                "ticket": ticket.Cuponazo("00005", "000"),
                 "expected": 1,
             },
             {
                 "case_name": "4 reversed numbers",
-                "ticket": CuponazoTicket("12340", "000"),
+                "ticket": ticket.Cuponazo("12340", "000"),
                 "expected": 4,
             },
             {
                 "case_name": "3 reversed numbers",
-                "ticket": CuponazoTicket("12300", "000"),
+                "ticket": ticket.Cuponazo("12300", "000"),
                 "expected": 3,
             },
             {
                 "case_name": "2 reversed numbers",
-                "ticket": CuponazoTicket("12000", "000"),
+                "ticket": ticket.Cuponazo("12000", "000"),
                 "expected": 2,
             },
             {
                 "case_name": "1 reversed numbers",
-                "ticket": CuponazoTicket("10000", "000"),
+                "ticket": ticket.Cuponazo("10000", "000"),
                 "expected": 1,
             },
             {
                 "case_name": "0 numbers",
-                "ticket": CuponazoTicket("00000", "000"),
+                "ticket": ticket.Cuponazo("00000", "000"),
                 "expected": 0,
             },
             {
                 "case_name": "in case of prize in both ways, return the bigger",
-                "ticket": CuponazoTicket("10345", "000"),
+                "ticket": ticket.Cuponazo("10345", "000"),
                 "expected": 3,
             },
         ]
-        checker = TicketChecker(result=CuponazoTicket("12345", "321"))
+        checker = ticket_checker.TicketChecker(result=ticket.Cuponazo("12345", "321"))
 
         for case in test_cases:
             results = checker.check_ticket(case["ticket"])

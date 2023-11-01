@@ -8,10 +8,11 @@ import requests
 
 from requests.exceptions import RequestException
 
-from cuponazo.juegosonce import CuponazoTicket
-from cuponazo.juegosonce import ResultsFetcher
-from cuponazo.juegosonce import ResultsFetchError
-from cuponazo.juegosonce import url as juegosonce_url
+from cuponazo.domain import ticket
+from cuponazo.domain import results_fetcher
+from cuponazo.infrastructure import results_fetcher as infra
+
+JUEGOSONCE_URL = "https://juegosonce.local/result.xml"
 
 
 class Test_ResultFetcher_FetchCuponazo(unittest.TestCase):
@@ -21,11 +22,11 @@ class Test_ResultFetcher_FetchCuponazo(unittest.TestCase):
             resp_text=load_fixture("correct_response"),
         )
 
-        fetcher = ResultsFetcher(juegosonce_url, mocked_http)
+        fetcher = infra.ResultsFetcher(JUEGOSONCE_URL, mocked_http)
         result = fetcher.fetch_cuponazo()
 
-        self.assertEqual(result, [CuponazoTicket("75727", "024")])
-        mocked_http.get.assert_called_once_with(juegosonce_url)
+        self.assertEqual(result, [ticket.Cuponazo("75727", "024")])
+        mocked_http.get.assert_called_once_with(JUEGOSONCE_URL)
 
     def test_remote_returns_response_without_cuponazo(self):
         mocked_http = build_mocked_http(
@@ -33,40 +34,40 @@ class Test_ResultFetcher_FetchCuponazo(unittest.TestCase):
             resp_text=load_fixture("response_without_cuponazo"),
         )
 
-        fetcher = ResultsFetcher(juegosonce_url, mocked_http)
+        fetcher = infra.ResultsFetcher(JUEGOSONCE_URL, mocked_http)
         result = fetcher.fetch_cuponazo()
 
         self.assertEqual(result, [])
-        mocked_http.get.assert_called_once_with(juegosonce_url)
+        mocked_http.get.assert_called_once_with(JUEGOSONCE_URL)
 
     def test_remote_returns_non_OK_response(self):
         mocked_http = build_mocked_http(resp_status_code=HTTPStatus.NOT_FOUND)
 
-        fetcher = ResultsFetcher(juegosonce_url, mocked_http)
+        fetcher = infra.ResultsFetcher(JUEGOSONCE_URL, mocked_http)
 
-        with self.assertRaises(ResultsFetchError):
+        with self.assertRaises(results_fetcher.Error):
             fetcher.fetch_cuponazo()
 
-        mocked_http.get.assert_called_once_with(juegosonce_url)
+        mocked_http.get.assert_called_once_with(JUEGOSONCE_URL)
 
     def test_newtork_connection_fails(self):
         mocked_http = build_mocked_http(err=RequestException)
-        fetcher = ResultsFetcher(juegosonce_url, mocked_http)
+        fetcher = infra.ResultsFetcher(JUEGOSONCE_URL, mocked_http)
 
-        with self.assertRaises(ResultsFetchError):
+        with self.assertRaises(results_fetcher.Error):
             fetcher.fetch_cuponazo()
-        mocked_http.get.assert_called_once_with(juegosonce_url)
+        mocked_http.get.assert_called_once_with(JUEGOSONCE_URL)
 
     def test_response_payload_is_invalid_xml(self):
         mocked_http = build_mocked_http(
             resp_status_code=HTTPStatus.OK,
             resp_text="asad.</",
         )
-        fetcher = ResultsFetcher(juegosonce_url, mocked_http)
+        fetcher = infra.ResultsFetcher(JUEGOSONCE_URL, mocked_http)
 
-        with self.assertRaises(ResultsFetchError):
+        with self.assertRaises(results_fetcher.Error):
             fetcher.fetch_cuponazo()
-        mocked_http.get.assert_called_once_with(juegosonce_url)
+        mocked_http.get.assert_called_once_with(JUEGOSONCE_URL)
 
 
 def load_fixture(case: str) -> str:

@@ -1,13 +1,8 @@
 import json
 from botocore.exceptions import ClientError
 
-from cuponazo.lottery import CuponazoTicket
-
-
-class TicketRepositoryError(Exception):
-    """Raised whenever `TicketRepository` encountered an issue to read/write tickets on the DB."""
-
-    pass
+from cuponazo.domain import ticket
+from cuponazo.domain import ticket_repository
 
 
 class DynDBTableWrapper:
@@ -27,7 +22,7 @@ class DynDBTableWrapper:
         return self.table.put_item(*args, **kwargs)
 
 
-class TicketRepository:
+class TicketRepository(ticket_repository.Interface):
     """Repository for the stored Cuponazo tickets played.
 
     Parameters
@@ -38,11 +33,11 @@ class TicketRepository:
     def __init__(self, table: DynDBTableWrapper) -> None:
         self.table = table
 
-    def get_tickets_by_id(self, ticket_id: str) -> list[CuponazoTicket]:
+    def get_tickets_by_id(self, ticket_id: str) -> list[ticket.Cuponazo]:
         try:
             response = self.table.get_item(Key={"Id": ticket_id})
         except ClientError as err:
-            raise TicketRepositoryError(
+            raise ticket_repository.Error(
                 f"Problem getting tickets for '{ticket_id}' from '{self.table.name}': {err.response['Error']['Code']}: {err.response['Error']['Message']}"
             )
 
@@ -52,19 +47,19 @@ class TicketRepository:
             return []
         else:
             return [
-                CuponazoTicket(ticket["number"], ticket["serie"])
-                for ticket in json.loads(db_items["Tickets"])
+                ticket.Cuponazo(t["number"], t["serie"])
+                for t in json.loads(db_items["Tickets"])
             ]
 
-    def add_ticket_to_id(self, ticket_id: str, ticket: CuponazoTicket) -> None:
+    def add_ticket_to_id(self, ticket_id: str, t: ticket.Cuponazo) -> None:
         tickets = self.get_tickets_by_id(ticket_id)
-        tickets.append(ticket)
+        tickets.append(t)
         serialized_tickets = json.dumps(
             [{"number": t.number, "serie": t.serie} for t in tickets]
         )
         try:
             self.table.put_item(Item={"Id": ticket_id, "Tickets": serialized_tickets})
         except ClientError as err:
-            raise TicketRepositoryError(
+            raise ticket_repository.Error(
                 f"Problem saving tickets for '{ticket_id}' to '{self.table.name}': {err.response['Error']['Code']}: {err.response['Error']['Message']}"
             )
